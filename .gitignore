@@ -1,0 +1,17 @@
+# Python / Build
+venv/
+__pycache__/
+*.pyc
+*.build/
+*.dist/
+
+# Executables
+chat
+*.bin
+*.exe
+*.app
+
+# Local data & Environment
+.env
+.session
+.DS_Store
