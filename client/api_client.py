@@ -1,6 +1,6 @@
 import httpx
 
-BASE_URL = "https://liberty-line.vercel.app"
+BASE_URL = "https://safely-chat.vercel.app"
 
 def register_user(username: str, password: str) -> dict:
     """Send a user registration request to the API."""
