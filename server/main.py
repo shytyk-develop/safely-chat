@@ -169,3 +169,31 @@ def get_chat_history(
 
     messages = query.order_by(models.Message.timestamp.asc()).all()
     return messages
+
+@app.get("/chats")
+def get_my_chats(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)):
+    """Retrieve a list of users with whom the current user has chatted."""
+
+    messages = db.query(models.Message).filter(
+        or_(
+            models.Message.sender_id == current_user.id, 
+            models.Message.receiver_id == current_user.id
+        )
+    ).all()
+
+    contact_ids = set()
+    for msg in messages:
+        if msg.sender_id != current_user.id:
+            contact_ids.add(msg.sender_id)
+        if msg.receiver_id != current_user.id:
+            contact_ids.add(msg.receiver_id)
+
+    if not contact_ids:
+        return []
+
+    contacts = db.query(models.User).filter(models.User.id.in_(contact_ids)).all()
+
+    return [{"id": c.id, "username": c.username} for c in contacts]
+
