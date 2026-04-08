@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (token) {
         switchScreen('dashboard-screen');
+        loadMyChats();
     }
 });
 
@@ -54,6 +55,7 @@ async function login() {
             document.getElementById('username').value = "";
             document.getElementById('password').value = "";
             switchScreen('dashboard-screen');
+            loadMyChats();
         } else {
             errorEl.innerText = "Invalid username or password!";
         }
@@ -231,5 +233,68 @@ async function sendMessage() {
         }
     } catch (err) {
         console.error("❌ Network/CORS Issue:", err);
+    }
+}
+
+// === Sidebar Chat Load ===
+async function loadMyChats() {
+    const ul = document.getElementById('chat-list');
+    
+    try {
+        const res = await fetch(`${BASE_URL}/chats`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        
+        if (res.status === 401) return logout();
+        
+        const chats = await res.json();
+        ul.innerHTML = ""; 
+        
+        if (chats.length === 0) {
+            ul.innerHTML = "<div class='empty-text'>No active chats. Use search to find users!</div>";
+            return;
+        }
+
+        chats.forEach(u => {
+            const li = document.createElement('li');
+            li.style.padding = "12px 15px";
+            li.style.borderBottom = "1px solid #eee";
+            li.style.cursor = "pointer";
+            li.style.display = "flex";
+            li.style.alignItems = "center";
+            li.style.transition = "background-color 0.2s";
+            
+            li.onmouseover = () => li.style.backgroundColor = "#f8f9fa";
+            li.onmouseout = () => li.style.backgroundColor = "transparent";
+
+            const avatar = document.createElement('div');
+            avatar.innerText = u.username.charAt(0).toUpperCase();
+            avatar.style.width = "36px";
+            avatar.style.height = "36px";
+            avatar.style.borderRadius = "50%";
+            avatar.style.backgroundColor = "#007bff";
+            avatar.style.color = "white";
+            avatar.style.display = "flex";
+            avatar.style.justifyContent = "center";
+            avatar.style.alignItems = "center";
+            avatar.style.marginRight = "12px";
+            avatar.style.flexShrink = "0";
+
+            const nameSpan = document.createElement('span');
+            nameSpan.innerText = u.username;
+            nameSpan.style.fontWeight = "bold";
+
+            li.onclick = () => {
+                startChat(u.id, u.username);
+                document.getElementById('search-results').innerHTML = ""; 
+                document.getElementById('search-query').value = "";
+            };
+
+            li.appendChild(avatar);
+            li.appendChild(nameSpan);
+            ul.appendChild(li);
+        });
+    } catch (err) {
+        console.error("Error loading chats:", err);
     }
 }
