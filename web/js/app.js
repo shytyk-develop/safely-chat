@@ -174,7 +174,10 @@ async function fetchMessages() {
 
     const messages = await res.json();
     const container = document.getElementById('messages-container');
-    
+
+    const isAtBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 10;
+    const currentScroll = container.scrollTop;
+
     container.innerHTML = ""; 
     
     if (messages.length === 0) {
@@ -191,7 +194,11 @@ async function fetchMessages() {
         container.appendChild(div);
     });
     
-    container.scrollTop = container.scrollHeight;
+    if (isAtBottom) {
+        container.scrollTop = container.scrollHeight;
+    } else {
+        container.scrollTop = currentScroll;
+    }
 }
 
 async function sendMessage() {
