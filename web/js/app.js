@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("register-btn").addEventListener("click", register);
     document.getElementById("logout-btn").addEventListener("click", logout);
     document.getElementById("search-btn").addEventListener("click", searchUsers);
-    document.getElementById("back-btn").addEventListener("click", goBackToMenu);
     document.getElementById("send-btn").addEventListener("click", sendMessage);
     
     document.getElementById("message-input").addEventListener("keypress", (e) => {
@@ -18,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (token) {
-        switchScreen('menu-screen');
+        switchScreen('dashboard-screen');
     }
 });
 
@@ -54,7 +53,7 @@ async function login() {
             errorEl.innerText = "";
             document.getElementById('username').value = "";
             document.getElementById('password').value = "";
-            switchScreen('menu-screen');
+            switchScreen('dashboard-screen');
         } else {
             errorEl.innerText = "Invalid username or password!";
         }
@@ -109,18 +108,19 @@ function logout() {
 // === Menu n Search ===
 async function searchUsers() {
     const q = document.getElementById('search-query').value;
+    const ul = document.getElementById('search-results');
+    ul.innerHTML = "";
+
     if (!q) return;
 
     const res = await fetch(`${BASE_URL}/users/search?q=${q}`, {
         headers: { "Authorization": `Bearer ${token}` }
     });
-    
-    if (res.status === 401) return logout(); 
+
+    if (res.status === 401) return logout();
 
     const users = await res.json();
-    const ul = document.getElementById('search-results');
-    ul.innerHTML = ""; 
-    
+
     if (users.length === 0) {
         ul.innerHTML = "<li style='color: #666;'>No users found.</li>";
         return;
@@ -128,15 +128,16 @@ async function searchUsers() {
 
     users.forEach(u => {
         const li = document.createElement('li');
-        
-        const nameSpan = document.createElement('span');
-        nameSpan.innerText = u.username;
-        
+        li.innerHTML = `<span>${u.username}</span>`;
+
         const chatBtn = document.createElement('button');
         chatBtn.innerText = "Chat";
-        chatBtn.onclick = () => startChat(u.id, u.username);
-        
-        li.appendChild(nameSpan);
+        chatBtn.onclick = () => {
+            startChat(u.id, u.username);
+            ul.innerHTML = ""; 
+            document.getElementById('search-query').value = ""; 
+        };
+
         li.appendChild(chatBtn);
         ul.appendChild(li);
     });
@@ -146,13 +147,17 @@ async function searchUsers() {
 function startChat(userId, username) {
     currentChatUserId = userId;
     currentChatUsername = username;
-    
-    document.getElementById('chat-title').innerText = username;
+
+    //document.getElementById('chat-title').innerText = username;
     document.getElementById('messages-container').innerHTML = "";
     document.getElementById('message-input').value = "";
-    
-    switchScreen('chat-screen');
-    
+
+    document.getElementById('no-chat-selected').style.display = 'none';
+    document.getElementById('chat-area').style.display = 'flex';
+
+    switchScreen('dashboard-screen');
+
+    clearInterval(pollInterval); 
     fetchMessages();
     pollInterval = setInterval(fetchMessages, 1500);
 }
