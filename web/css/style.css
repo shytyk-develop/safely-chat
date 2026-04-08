@@ -233,6 +233,14 @@ button:hover {
     list-style: none;
     overflow-y: auto;
     flex-grow: 1;
+    padding: 10px; 
+    display: flex;
+    flex-direction: column;
+    gap: 6px; 
+}
+
+#chat-list li {
+    border-radius: 10px; 
 }
 
 .empty-text { padding: 20px; text-align: center; color: #888; font-size: 14px; }
