@@ -7,7 +7,7 @@ import { api } from '../lib/api';
 
 interface User { id: number; username: string; }
 interface ChatContact { id: number; username: string; }
-interface Message { id: number; sender_id: number; receiver_id: number; content: string; timestamp: string; }
+interface Message { id: number; sender_id: number; receiver_id: number; content: string; timestamp: string; is_read: boolean;}
 
 export default function ChatPage() {
   const router = useRouter();
@@ -98,6 +98,18 @@ export default function ChatPage() {
 
     return () => clearInterval(interval);
   }, [activeChatId, messages]);
+
+  useEffect(() => {
+  if (!activeChatId) return;
+  
+    // Помечаем сообщения как прочитанные при открытии чата
+    api.markAsRead(activeChatId);
+    
+    api.getMessages(activeChatId, 0).then(data => {
+      setMessages(data);
+      setTimeout(scrollToBottom, 50);
+    });
+  }, [activeChatId]);
 
   // 5. Send message handler
   const handleSendMessage = async (e: FormEvent) => {
@@ -276,10 +288,12 @@ export default function ChatPage() {
                 const isMine = msg.sender_id === currentUser?.id;
                 const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+                // frontend/app/page.tsx (внутри messages.map)
                 return (
                   <div key={msg.id} className={`flex group ${isMine ? 'justify-end' : 'justify-start'}`}>
-                    <div className="flex items-center gap-2 max-w-[75%]">
-                      {/* Delete Button (visible on hover for sender) */}
+                    <div className="flex items-center gap-1.5 max-w-[85%] md:max-w-[75%]">
+                      
+                      {/* Кнопка удаления (видна при наведении слева от моего сообщения) */}
                       {isMine && (
                         <button 
                           onClick={() => {
@@ -289,17 +303,36 @@ export default function ChatPage() {
                               });
                             }
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 text-text-muted hover:text-red-500 transition-all"
+                          className="opacity-0 group-hover:opacity-100 p-1 text-[#888888] hover:text-red-500 transition-all shrink-0"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </button>
                       )}
 
-                      <div className={`rounded-[14px] px-4 py-2 relative flex items-end gap-3 ${
+                      {/* Пузырек сообщения в стиле Telegram */}
+                      <div className={`rounded-[12px] px-3 py-1.5 relative flex items-end gap-2 ${
                         isMine ? 'bg-[#2b5278] text-white rounded-br-[4px]' : 'bg-[#1e1e1e] text-[#e8e8e8] rounded-bl-[4px]'
                       }`}>
-                        <p className="text-[14px] leading-relaxed break-words">{msg.content}</p>
-                        <span className="text-[11px] opacity-60 pb-0.5 shrink-0 select-none">{timeStr}</span>
+                        
+                        {/* Текст сообщения (занимает все место) */}
+                        <p className="text-[14px] leading-snug break-words flex-1 min-w-0">{msg.content}</p>
+                        
+                        {/* Блок времени и статуса (компактный, сбоку) */}
+                        <div className="flex items-center gap-1 shrink-0 ml-1 mt-auto pb-0.5">
+                          <span className="text-[10px] opacity-60 select-none leading-none">{timeStr}</span>
+                          
+                          {isMine && (
+                            <span className="flex items-center shrink-0">
+                              {msg.is_read ? (
+                                // Двойная синяя галочка (Прочитано)
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#339cff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12l5 5L20 4M7 12l5 5L22 4"/></svg>
+                              ) : (
+                                // Одинарная серая галочка (Доставлено)
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40"><path d="M20 6L9 17l-5-5"/></svg>
+                              )}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -83,6 +83,10 @@ class ApiClient {
   async deleteMessage(messageId: number) {
     return this.request(`/messages/${messageId}`, { method: 'DELETE' });
   }
+
+  async markAsRead(contactId: number) {
+    return this.request(`/messages/read/${contactId}`, { method: 'POST' });
+  }
 }
 
 // Fetches current user profile

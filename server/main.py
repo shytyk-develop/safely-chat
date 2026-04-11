@@ -222,3 +222,18 @@ def delete_message(
     msg.is_deleted = True
     db.commit()
     return {"status": "success"}
+
+@app.post("/messages/read/{contact_id}")
+def mark_messages_as_read(
+    contact_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user)
+):
+    db.query(models.Message).filter(
+        models.Message.sender_id == contact_id,
+        models.Message.receiver_id == current_user.id,
+        models.Message.is_read == False
+    ).update({"is_read": True})
+    
+    db.commit()
+    return {"status": "success"}
