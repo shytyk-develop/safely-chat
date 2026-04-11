@@ -45,7 +45,7 @@ class ApiClient {
     params.append('username', username);
     params.append('password', password);
 
-    const data = await this.request('/token', {
+    const data = await this.request('/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params.toString()
