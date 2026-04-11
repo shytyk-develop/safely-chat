@@ -117,6 +117,12 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@app.get("/users/me", response_model=schemas.UserResponse)
+def read_current_user(current_user: models.User = Depends(get_current_user)):
+    """Return the authenticated user profile."""
+    return current_user
+
+
 @app.get("/users/search", response_model=List[schemas.UserResponse])
 def search_users(
     q: str,

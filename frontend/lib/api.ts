@@ -29,9 +29,9 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      // Extract FastAPI error detail
+      // Extract FastAPI error detail if present, otherwise fallback to status text.
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.detail || 'Server error');
+      throw new Error(error.detail || response.statusText || 'Server error');
     }
 
     return response.json();
@@ -59,6 +59,10 @@ class ApiClient {
 
   async getMe() {
     return this.request('/users/me');
+  }
+
+  async getChats() {
+    return this.request('/chats');
   }
 }
 
