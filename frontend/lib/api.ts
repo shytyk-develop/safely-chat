@@ -64,6 +64,25 @@ class ApiClient {
   async getChats() {
     return this.request('/chats');
   }
+
+  async getMessages(contactId: number, lastMessageId: number = 0) {
+    return this.request(`/messages/${contactId}?last_message_id=${lastMessageId}`);
+  }
+
+  async sendMessage(receiverId: number, content: string) {
+    return this.request('/messages', {
+      method: 'POST',
+      body: JSON.stringify({ receiver_id: receiverId, content }),
+    });
+  }
+
+  async searchUsers(query: string) {
+    return this.request(`/users/search?q=${encodeURIComponent(query)}`);
+  }
+  
+  async deleteMessage(messageId: number) {
+    return this.request(`/messages/${messageId}`, { method: 'DELETE' });
+  }
 }
 
 // Fetches current user profile

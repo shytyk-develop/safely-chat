@@ -14,7 +14,7 @@ from .database import engine, Base, get_db
 from . import models, schemas
 
 Base.metadata.create_all(bind=engine)
-app = FastAPI(title="SuperChat API")
+app = FastAPI(title="SafeLy API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -129,12 +129,15 @@ def search_users(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Search for users whose username contains the query string."""
+    if not q.strip():
+        return []
+    
     users = db.query(models.User).filter(
         models.User.username.ilike(f"%{q}%"),
         models.User.id != current_user.id
-    ).limit(10).all()
-    return users
+    ).limit(20).all()
+    
+    return [{"id": u.id, "username": u.username} for u in users]
 
 
 @app.post("/messages", response_model=schemas.MessageResponse)
@@ -167,7 +170,8 @@ def get_chat_history(
         or_(
             (models.Message.sender_id == current_user.id) & (models.Message.receiver_id == contact_id),
             (models.Message.sender_id == contact_id) & (models.Message.receiver_id == current_user.id)
-        )
+        ),
+        models.Message.is_deleted == False
     )
 
     if last_message_id > 0:
@@ -203,3 +207,18 @@ def get_my_chats(
 
     return [{"id": c.id, "username": c.username} for c in contacts]
 
+@app.delete("/messages/{message_id}")
+def delete_message(
+    message_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user)
+):
+    msg = db.query(models.Message).filter(models.Message.id == message_id).first()
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    if msg.sender_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You cannot delete other users' messages")
+
+    msg.is_deleted = True
+    db.commit()
+    return {"status": "success"}
