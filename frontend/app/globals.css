@@ -1,26 +1,22 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Brand: buttons and outgoing messages */
+  --color-brand-light: #818cf8; /* lighter hover effects */
+  --color-brand: #4f46e5;       /* main accent color */
+  --color-brand-dark: #3730a3;  /* click/active states */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Surface: layout and text */
+  --color-surface-light: #ffffff; /* chat panels / cards */
+  --color-surface-bg: #f3f4f6;    /* darken/lighten app background */
+  --color-surface-dark: #1f2937;  /* text and icon contrast */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Layout */
+  --radius-chat: 1.25rem; /* 0 for sharp, higher for rounded */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-surface-bg);
+  color: var(--color-surface-dark);
+  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
 }
