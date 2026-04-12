@@ -17,7 +17,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="SafeLy API")
 origins = [
     "http://localhost:3000",
-    "https://YOUR-VERCEL-DOMAIN.vercel.app",
+    "https://*.vercel.app",
 ]
 app.add_middleware(
     CORSMiddleware,
