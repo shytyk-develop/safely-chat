@@ -11,3 +11,5 @@ rich
 typer
 python-dotenv
 python-multipart
+gunicorn
+uvicorn[standard]

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fastapi-app
+    runtime: python
+    buildCommand: ""
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker server.main:app
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: ALGORITHM
+        sync: false
