@@ -3,17 +3,17 @@
 @import "tailwindcss";
 
 @theme {
-  /* Основные акценты */
-  --color-brand: #2b5278;       
-  --color-brand-light: #3a6894; 
+  /* Brand accents */
+  --color-brand: #2b5278;
+  --color-brand-light: #3a6894;
+
+  /* Structural colors (Deep Dark Mode) */
+  --color-surface-bg: #050505;      /* Background around the messenger */
+  --color-surface-app: #0f0f0f;     /* Main chat background */
+  --color-surface-sidebar: #151515; /* Left sidebar background */
+  --color-surface-input: #1e1e1e;   /* Input fields background */
   
-  /* Структурные цвета (Глубокий Dark Mode) */
-  --color-surface-bg: #050505;      /* Фон вокруг мессенджера */
-  --color-surface-app: #0f0f0f;     /* Основной фон чата */
-  --color-surface-sidebar: #151515; /* Фон левой панели */
-  --color-surface-input: #1e1e1e;   /* Фон инпутов */
-  
-  /* Текст */
+  /* Text */
   --color-text-main: #e8e8e8;       
   --color-text-muted: #888888;      
 }
@@ -22,5 +22,5 @@ body {
   background-color: var(--color-surface-bg);
   color: var(--color-text-main);
   font-family: var(--font-sans, system-ui, sans-serif);
-  overflow: hidden; /* Убираем скролл всей страницы */
+  overflow: hidden;
 }
